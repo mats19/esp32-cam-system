@@ -1,4 +1,23 @@
-# PlatformIO
+# --- PlatformIO (Firmware) ---
+# Schließt den Build-Ordner und VS Code Einstellungen in Unterordnern aus
+**/firmware/.pio/
+**/firmware/.vscode/
+*.bin
+*.elf
+
+# --- KiCad (Hardware) ---
+# Schließt Backups und temporäre Dateien in Unterordnern aus
+**/*-backups/
+**/*.bak
+**/*.kicad_prl
+**/*.kicad_pcb-bak
+**/*.kicad_sch-bak
+**/fp-info-cache
+**/_autosave-*
+
+# --- OS / Allgemein ---
+.DS_Store
+Thumbs.db
 .pio/
 .vscode/
 *.bin
