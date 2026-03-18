@@ -1,6 +1,10 @@
+# PlatformIO
 .pio/
 .vscode/
 *.bin
+*.elf
+
+# KiCad
 *-backups/
 *.bak
 *.kicad_prl
@@ -8,3 +12,6 @@
 *.kicad_sch-bak
 fp-info-cache
 _autosave-*
+
+# OS
+.DS_Store
