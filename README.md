@@ -1,63 +1,81 @@
 # ESP32-Cam Autonomous MQTT Camera
 
-## Konzept
+## Concept
+This circuit realizes an autonomous, battery-powered surveillance camera based on the ESP32-Cam (AI-Thinker model).
 
-Diese Schaltung realisiert eine autonom über Batterie betriebene Überwachungskamera basierend auf dem ESP32-Cam AI-Thinker Modul.
+### Functionality
+* **Autonomous Operation:** Designed for long-term battery use.
+* **Interval Capture:** The ESP32 wakes up at defined intervals, captures a photo, and sends it via WiFi/MQTT to a Home Assistant instance.
+* **Power Efficiency:** Uses Deep Sleep mode between cycles to minimize power consumption.
+* **Manual Trigger:** A tactile button allows manual image triggering at any time.
+* **Status Indication:** Two LEDs provide visual feedback for status or errors (e.g., connection issues).
 
-**Funktionsweise:**
-1.  **Autonomer Betrieb:** Das System ist darauf ausgelegt, über längere Zeiträume batteriebetrieben zu laufen.
-2.  **Intervall-Aufnahmen:** In definierten, größeren Zeitabständen wacht der ESP32 auf, nimmt ein Foto auf und sendet dieses über WLAN per MQTT an eine Home Assistant Instanz.
-3.  **Energieeffizienz:** Zwischen den Aufnahmezyklen wird das Modul in den Deep-Sleep-Modus (Ruhemodus) versetzt, um den Energieverbrauch zu minimieren.
-4.  **Manuelle Auslösung:** Über einen Taster kann jederzeit manuell eine Aufnahme getriggert werden.
-5.  **Statusanzeige:** Zwei LEDs geben visuelles Feedback über den aktuellen Status oder Fehler (z.B. fehlende Internetverbindung).
+## Project Structure
+The repository is organized to separate hardware design from firmware development while maintaining a unified workspace.
 
-## Hardware-Beschreibung
+```text
+esp32-cam-system/           # Root directory (Open this in VS Code)
+├── .gitignore              # Global ignore rules for PIO and KiCad
+├── platformio.ini          # Central configuration (redirects to firmware/)
+├── README.md               # Project documentation
+├── .vscode/                # VS Code specific settings
+│   ├── settings.json       # IntelliSense and include paths
+│   └── tasks.json          # Build and Upload shortcuts
+├── firmware/               # Firmware source files
+│   └── src/                # .cpp and .h files (Logic & Headers)
+├── hardware/               # KiCad PCB project
+│   ├── esp32-cam-hw.kicad_pro
+│   └── libraries/          # Local Footprints and Symbols
+└── docs/                   # Datasheets, 3D models (STL), and images
+```
 
-### Bausteine
+## Development Environment & Settings
 
-#### Hauptplatine
-*   **U1 (ESP32-Cam AI-Thinker Model):** Das Kernmodul, welches den ESP32-S SoC, die Kamera und den SD-Kartenslot (optional zur Pufferung) enthält. **Footprint:** `Spezifischer ESP32-Cam Footprint`
-*   **J1 (Stromversorgung):** 2-Pin Anschluss für die externe Spannungsversorgung (5V). **Footprint:** `Connector_JST:JST_XH_S2B-XH-A_1x02_P2.50mm_Horizontal`
-*   **J2 (Programmieranschluss):** USB Breakout Board (aufgelötet) mit Pins zum Flashen der Firmware und für Debug-Ausgaben via UART. **Footprint:** `Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical`
-*   **J3 (Verbindung Frontpanel):** 4-Pin Buchse zum Anschluss der Tochterplatine. **Footprint:** `Connector_JST:JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal`
+### PlatformIO & VS Code
+To maintain a clean root directory while keeping firmware in a subfolder, the central `platformio.ini` is configured as follows:
+* **Custom Paths:** Redirects `src_dir` and `include_dir` to the `firmware/` folder.
+* **Hardware Abstraction:** PSRAM is explicitly enabled via build flags (`-DBOARD_HAS_PSRAM`) to handle image processing.
+* **IntelliSense:** The `.vscode/settings.json` includes `${workspaceFolder}/firmware/src` to ensure header files are recognized without errors.
 
-#### Tochterplatine (Frontpanel)
-*   **J4 (Verbindung Hauptplatine):** 4-Pin Anschluss an die Hauptplatine. **Footprint:** `Connector_JST:JST_XH_S4B-XH-A_1x04_P2.50mm_Horizontal`
-*   **SW1 (Taster):** Dient zum manuellen Auslösen eines Bildes (zieht IO12 auf GND). **Footprint:** `Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical`
-*   **D1 (LED Rot) & R1:** Fehlerindikator. Leuchtet beispielsweise, wenn keine Verbindung zum MQTT-Broker oder WLAN hergestellt werden kann. **Footprint:** `LED_THT:LED_D5.0mm` & `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal`
-*   **D2 (LED Status) & R2:** Statusindikator. Signalisiert aktive Vorgänge wie Bildaufnahme oder Speichervorgang. **Footprint:** `LED_THT:LED_D5.0mm` & `Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal`
+### KiCad Workflow
+* **Portability:** All custom footprints and symbols are stored in `hardware/libraries/`.
+* **Path Variables:** Library paths should use the `${KIPRJMOD}/libraries/` variable to ensure the project remains functional when cloned to different machines.
 
-### Anschlüsse und Belegung (Labels)
+## Hardware Description
 
-#### J1 - Power Supply
-*   **Pin 1:** `5V` (Eingangsspannung)
-*   **Pin 2:** `GND` (Masse)
+### Components
 
-#### J2 - Programming Interface (FTDI)
-Dieser Anschluss entspricht der Belegung gängiger FTDI-Adapter, wobei Pin 5 zum Aktivieren des Flash-Modus genutzt wird.
-*   **Pin 1:** `5V` (Versorgung durch Programmer, falls Batterie getrennt)
-*   **Pin 2:** `GND`
-*   **Pin 3:** `U0T` (TXD0 des ESP32 -> RXD des Programmers)
-*   **Pin 4:** `U0R` (RXD0 des ESP32 -> TXD des Programmers)
-*   **Pin 5:** `IO0` (Boot Mode Selection). Wird dieser Pin während des Resets auf GND gezogen, startet der ESP32 im Download-Modus.
+#### Main Board
+* **U1 (ESP32-Cam AI-Thinker):** Core module containing the ESP32-S SoC, camera, and SD card slot.
+* **J1 (Power Supply):** 2-pin JST-XH connector for 5V external power.
+* **J2 (Programming):** 5-pin header for FTDI flashing and UART debugging.
+* **J3 (Front Panel Link):** 4-pin socket to connect the daughterboard.
 
-#### J3 / J4 - Board-to-Board Verbindung
-Verbindung zwischen Haupt- und Tochterplatine.
-*   **Pin 1:** `GND`
-*   **Pin 2:** `TRIGGER` (IO12)
-*   **Pin 3:** `LED_ERROR` (IO13)
-*   **Pin 4:** `LED_STATUS` (IO15)
+#### Daughterboard (Front Panel)
+* **SW1 (Button):** Manual capture trigger (Connects IO12 to GND).
+* **D1 (Red LED):** Error indicator (MQTT/WiFi failure).
+* **D2 (Status LED):** Activity indicator (Capturing/Processing).
 
-#### Interne Signale & GPIOs
+### Connections and Pinout
 
-| Label | GPIO | Beschreibung |
-| :--- | :--- | :--- |
-| **TRIGGER** | IO12 | Verbunden mit **SW1**. Active-Low. Dient als Wake-Up Source aus dem Deep Sleep oder als manueller Auslöser. |
-| **LED_ERROR** | IO13 | Verbunden mit **D1** (Rot). High-Active (Anode an GPIO). Zeigt Fehler an. |
-| **LED_STATUS**| IO15 | Verbunden mit **D2**. High-Active. Zeigt Aktivität an. |
-| **U0T** | IO1 | Serial Transmit (UART0). |
-| **U0R** | IO3 | Serial Receive (UART0). |
-| **IO0** | IO0 | Boot-Konfiguration. Muss zum Flashen auf GND liegen. |
+| Pin | J2 (Programming) | J3 / J4 (Link) | GPIO | Description |
+|---|---|---|---|---|
+| 1 | 5V | GND | - | Common Ground |
+| 2 | GND | TRIGGER | IO12 | Manual trigger / Wake-up |
+| 3 | U0T (TX) | ERR_LED | IO13 | Error LED (Red) |
+| 4 | U0R (RX) | STS_LED | IO15 | Status LED |
+| 5 | IO0 | - | IO0 | Pull to GND for flashing |
 
----
-*Erstellt mit KiCad.*
+## PCB Milling Specifications (Isolation Milling)
+Optimized for CNC isolation milling on copper-clad boards.
+
+### Manufacturing Parameters
+* **Track Width:** 0.5 mm to 0.8 mm (Signals); 1.0 mm (Power).
+* **Clearance (Isolation Gap):** 0.4 mm to 0.6 mm.
+* **THT Pads:** 2.0 mm outer diameter; 1.0 mm drill hole (0.5 mm annular ring).
+* **Thermal Reliefs:** Required for all pads in copper zones.
+* **Antenna Keepout:** A dedicated copper-free area must be maintained under the ESP32-S PCB antenna to avoid WiFi signal attenuation.
+
+### Milling Constraints
+* **Tooling:** 30° Engraving Bit.
+* **Depth of Cut:** 0.05 mm to 0.1 mm (Auto-leveling highly recommended).
