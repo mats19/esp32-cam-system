@@ -74,7 +74,7 @@ Optimized for CNC isolation milling on copper-clad boards.
 * **Clearance (Isolation Gap):** 0.4 mm to 0.6 mm.
 * **THT Pads:** Standard 2.0 mm outer diameter (1.0 mm drill). Custom footprints (e.g. SW1 DTR 7/RT) use 2.6 mm pads with 2.0 mm drills to maintain isolation gaps.
 * **Thermal Reliefs:** Required for all pads in copper zones.
-* **Antenna Keepout:** A dedicated copper-free area must be maintained under the ESP32-S PCB antenna to avoid WiFi signal attenuation.
+* **Antenna Cutout:** Instead of a standard keepout zone, a rectangle is drawn on the `User.Drawings` layer. This area under the ESP32-S PCB antenna will be completely milled out (freigefräst) to avoid WiFi signal attenuation.
 
 ### Milling Constraints
 * **Tooling:** 30° Engraving Bit.
