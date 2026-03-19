@@ -15,6 +15,12 @@
 **/fp-info-cache
 **/_autosave-*
 
+# CNC / Manufacturing exports
+**/hardware/gerber/
+*.gcode
+*.nc
+*.tap
+
 # --- OS / Allgemein ---
 .DS_Store
 Thumbs.db

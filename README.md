@@ -52,7 +52,7 @@ To maintain a clean root directory while keeping firmware in a subfolder, the ce
 * **J3 (Front Panel Link):** 4-pin socket to connect the daughterboard.
 
 #### Daughterboard (Front Panel)
-* **SW1 (Button):** Manual capture trigger (Connects IO12 to GND).
+* **SW1 (Button):** Manual capture trigger, push button DTR 7/RT (Connects IO12 to GND).
 * **D1 (Red LED):** Error indicator (MQTT/WiFi failure).
 * **D2 (Status LED):** Activity indicator (Capturing/Processing).
 
@@ -72,7 +72,7 @@ Optimized for CNC isolation milling on copper-clad boards.
 ### Manufacturing Parameters
 * **Track Width:** 0.5 mm to 0.8 mm (Signals); 1.0 mm (Power).
 * **Clearance (Isolation Gap):** 0.4 mm to 0.6 mm.
-* **THT Pads:** 2.0 mm outer diameter; 1.0 mm drill hole (0.5 mm annular ring).
+* **THT Pads:** Standard 2.0 mm outer diameter (1.0 mm drill). Custom footprints (e.g. SW1 DTR 7/RT) use 2.6 mm pads with 2.0 mm drills to maintain isolation gaps.
 * **Thermal Reliefs:** Required for all pads in copper zones.
 * **Antenna Keepout:** A dedicated copper-free area must be maintained under the ESP32-S PCB antenna to avoid WiFi signal attenuation.
 
